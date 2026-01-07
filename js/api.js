@@ -12,6 +12,7 @@ const API = (() => {
     const clearToken = () => { accessToken = null; localStorage.removeItem('access_token'); };
 
     // Request helper
+    let isRefreshing = false;
     const request = async (endpoint, options = {}) => {
         const url = `${BASE_URL}${endpoint}`;
         const headers = { 'Content-Type': 'application/json', ...options.headers };
@@ -21,12 +22,14 @@ const API = (() => {
         try {
             const response = await fetch(url, { ...options, headers, credentials: 'include' });
 
-            // Handle 401 - try refresh
-            if (response.status === 401 && endpoint !== '/auth/refresh') {
+            // Handle 401 - try refresh (but not for auth endpoints to avoid loops)
+            if (response.status === 401 && !endpoint.startsWith('/auth/') && !isRefreshing) {
+                isRefreshing = true;
                 const refreshed = await refreshToken();
+                isRefreshing = false;
                 if (refreshed) {
                     headers['Authorization'] = `Bearer ${getToken()}`;
-                    return fetch(url, { ...options, headers, credentials: 'include' });
+                    return fetch(url, { ...options, headers, credentials: 'include' }).then(r => r.json());
                 }
                 clearToken();
                 window.dispatchEvent(new CustomEvent('auth:logout'));
