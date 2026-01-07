@@ -153,11 +153,12 @@ const Modules = (() => {
     const openEditModal = (module) => {
         // Create edit modal
         const modal = document.createElement('div');
-        modal.className = 'modal active';
+        modal.className = 'modal open';
         modal.id = 'edit-module-modal';
         modal.innerHTML = `
-            <div class="modal-overlay"></div>
-            <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-backdrop" id="edit-modal-backdrop"></div>
+            <div class="modal-container">
+                <div class="modal-content" style="max-width: 600px;">
                 <button class="modal-close" id="close-edit-modal">&times;</button>
                 <h2 class="modal-title">Editar Módulo</h2>
                 <form id="edit-module-form">
@@ -189,13 +190,14 @@ const Modules = (() => {
                         <button type="submit" class="btn btn-primary" id="save-edit-btn">Guardar Cambios</button>
                     </div>
                 </form>
+                </div>
             </div>
         `;
         document.body.appendChild(modal);
 
         // Close modal handlers
         const closeModal = () => modal.remove();
-        modal.querySelector('.modal-overlay').addEventListener('click', closeModal);
+        modal.querySelector('.modal-backdrop').addEventListener('click', closeModal);
         modal.querySelector('#close-edit-modal').addEventListener('click', closeModal);
         modal.querySelector('#cancel-edit-btn').addEventListener('click', closeModal);
 
