@@ -112,8 +112,8 @@ const Modules = (() => {
                         <h1 class="module-detail-title">${m.name}</h1>
                         <p class="module-detail-author">por <a href="#">${m.author?.username || 'Anónimo'}</a></p>
                         ${isAuthor ? `
-                            <button class="btn btn-secondary" id="edit-module-btn" style="margin-top: 1rem;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:0.5rem;">
+                            <button class="btn btn-ghost" id="edit-module-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
@@ -159,8 +159,13 @@ const Modules = (() => {
             <div class="modal-backdrop" id="edit-modal-backdrop"></div>
             <div class="modal-container">
                 <div class="modal-content" style="max-width: 600px;">
-                <button class="modal-close" id="close-edit-modal">&times;</button>
-                <h2 class="modal-title">Editar Módulo</h2>
+                    <button class="modal-close" id="close-edit-modal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Editar Módulo</h2>
                 <form id="edit-module-form">
                     <div class="form-group">
                         <label class="form-label">Nombre</label>
