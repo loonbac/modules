@@ -30,8 +30,8 @@ const Modules = (() => {
         return data.module;
     };
 
-    const create = (formData) => API.upload('/modules', formData);
-    const update = (slug, formData) => API.uploadPut(`/modules/${slug}`, formData);
+    const create = (data) => API.post('/modules', data);
+    const update = (slug) => API.put(`/modules/${slug}`, {});
     const remove = (slug) => API.delete(`/modules/${slug}`);
     const getMyModules = () => API.get('/modules/mine');
 
@@ -168,59 +168,32 @@ const Modules = (() => {
         }
 
         document.getElementById('edit-module-slug').value = module.slug;
-        document.getElementById('edit-module-name').value = module.name;
-        document.getElementById('edit-module-version').value = module.version;
-        document.getElementById('edit-version-hint').textContent = `Versión actual: ${module.version} → Sugerida: ${incrementVersion(module.version)}`;
-        document.getElementById('edit-module-category').value = module.category || '';
-        document.getElementById('edit-module-description').value = module.description || '';
-        document.getElementById('edit-module-docs').value = module.documentation || '';
+        document.getElementById('edit-module-name').textContent = module.name;
+        document.getElementById('edit-module-version').textContent = module.version;
 
-        const uploadZone = document.getElementById('edit-upload-zone');
-        const fileInput = document.getElementById('edit-module-file');
-        const uploadedFile = document.getElementById('edit-uploaded-file');
-        const uploadedFileName = document.getElementById('edit-uploaded-file-name');
-        const removeFileBtn = document.getElementById('edit-remove-file');
-
-        const showUploadedFile = (name) => {
-            uploadZone.classList.add('hidden');
-            uploadedFile.classList.remove('hidden');
-            uploadedFileName.textContent = name;
-        };
-
-        uploadZone.onclick = () => fileInput.click();
-        fileInput.onchange = () => { if (fileInput.files[0]) showUploadedFile(fileInput.files[0].name); };
-        removeFileBtn.onclick = () => {
-            fileInput.value = '';
-            uploadedFile.classList.add('hidden');
-            uploadZone.classList.remove('hidden');
-        };
+        const githubLink = document.getElementById('edit-module-github');
+        if (githubLink && module.github_url) {
+            githubLink.href = module.github_url;
+            githubLink.textContent = module.github_url.replace('https://github.com/', '');
+        }
 
         document.getElementById('edit-cancel-btn').onclick = () => App.navigateTo('my-modules');
         document.getElementById('edit-back-link').onclick = (e) => { e.preventDefault(); App.navigateTo('my-modules'); };
 
-        document.getElementById('edit-module-form').onsubmit = async (e) => {
-            e.preventDefault();
+        document.getElementById('edit-submit-btn').onclick = async () => {
             const submitBtn = document.getElementById('edit-submit-btn');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span>Guardando...</span>';
+            submitBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div> Sincronizando...';
 
             try {
-                const formData = new FormData();
-                formData.append('version', document.getElementById('edit-module-version').value);
-                formData.append('description', document.getElementById('edit-module-description').value);
-                formData.append('documentation', document.getElementById('edit-module-docs').value);
-                formData.append('category', document.getElementById('edit-module-category').value);
-
-                if (fileInput.files[0]) formData.append('file', fileInput.files[0]);
-
-                await update(module.slug, formData);
-                Toast.success('¡Módulo actualizado!');
+                const result = await update(module.slug);
+                Toast.success(result.message || '¡Módulo sincronizado!');
                 window.editingModule = null;
                 App.navigateTo('my-modules');
             } catch (error) {
-                Toast.error(error.message || 'Error al actualizar');
+                Toast.error(error.message || 'Error al sincronizar');
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path></svg> Guardar Cambios`;
+                submitBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"></path></svg> Sincronizar desde GitHub`;
             }
         };
     };
