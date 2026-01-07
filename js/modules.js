@@ -30,7 +30,7 @@ const Modules = (() => {
     };
 
     const create = (formData) => API.upload('/modules', formData);
-    const update = (slug, formData) => API.upload(`/modules/${slug}`, formData);
+    const update = (slug, formData) => API.uploadPut(`/modules/${slug}`, formData);
     const remove = (slug) => API.delete(`/modules/${slug}`);
     const getMyModules = () => API.get('/modules/mine');
 
@@ -100,11 +100,23 @@ const Modules = (() => {
         try {
             await getById(slug);
             const m = currentModule;
+            const currentUser = Auth.getUser();
+            const isAuthor = currentUser && m.author && currentUser.id === m.author.id;
+
             container.innerHTML = `
                 <div class="module-detail-main">
                     <div class="module-detail-header">
                         <h1 class="module-detail-title">${m.name}</h1>
                         <p class="module-detail-author">por <a href="#">${m.author?.username || 'Anónimo'}</a></p>
+                        ${isAuthor ? `
+                            <button class="btn btn-secondary" id="edit-module-btn" style="margin-top: 1rem;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:0.5rem;">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Editar Módulo
+                            </button>
+                        ` : ''}
                     </div>
                     ${m.images?.length ? `
                         <div class="module-detail-images">
@@ -128,9 +140,99 @@ const Modules = (() => {
                     </a>
                 </aside>
             `;
+
+            // Add edit button listener if author
+            if (isAuthor) {
+                document.getElementById('edit-module-btn')?.addEventListener('click', () => openEditModal(m));
+            }
         } catch (error) {
             container.innerHTML = '<div class="empty-state"><h3 class="empty-title">Módulo no encontrado</h3></div>';
         }
+    };
+
+    const openEditModal = (module) => {
+        // Create edit modal
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.id = 'edit-module-modal';
+        modal.innerHTML = `
+            <div class="modal-overlay"></div>
+            <div class="modal-content" style="max-width: 600px;">
+                <button class="modal-close" id="close-edit-modal">&times;</button>
+                <h2 class="modal-title">Editar Módulo</h2>
+                <form id="edit-module-form">
+                    <div class="form-group">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-input" id="edit-name" value="${module.name}" readonly style="opacity: 0.7;">
+                        <span class="form-hint">El nombre no se puede cambiar</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nueva Versión *</label>
+                        <input type="text" class="form-input" id="edit-version" value="${module.version}" required pattern="^\\d+\\.\\d+\\.\\d+$">
+                        <span class="form-hint">Incrementa la versión (ej: ${incrementVersion(module.version)})</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-textarea" id="edit-description" rows="3">${module.description || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Documentación (Markdown)</label>
+                        <textarea class="form-textarea code" id="edit-documentation" rows="10">${module.documentation || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nuevo archivo ZIP (opcional)</label>
+                        <input type="file" class="form-input" id="edit-file" accept=".zip" style="padding: 0.5rem;">
+                        <span class="form-hint">Solo si quieres actualizar el código del módulo</span>
+                    </div>
+                    <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-ghost" id="cancel-edit-btn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="save-edit-btn">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Close modal handlers
+        const closeModal = () => modal.remove();
+        modal.querySelector('.modal-overlay').addEventListener('click', closeModal);
+        modal.querySelector('#close-edit-modal').addEventListener('click', closeModal);
+        modal.querySelector('#cancel-edit-btn').addEventListener('click', closeModal);
+
+        // Form submit
+        modal.querySelector('#edit-module-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const saveBtn = modal.querySelector('#save-edit-btn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Guardando...';
+
+            try {
+                const formData = new FormData();
+                formData.append('version', modal.querySelector('#edit-version').value);
+                formData.append('description', modal.querySelector('#edit-description').value);
+                formData.append('documentation', modal.querySelector('#edit-documentation').value);
+
+                const fileInput = modal.querySelector('#edit-file');
+                if (fileInput.files[0]) {
+                    formData.append('file', fileInput.files[0]);
+                }
+
+                await update(module.slug, formData);
+                Toast.success('¡Módulo actualizado!');
+                closeModal();
+                renderModuleDetail(module.slug); // Refresh detail view
+            } catch (error) {
+                Toast.error(error.message || 'Error al actualizar');
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Guardar Cambios';
+            }
+        });
+    };
+
+    const incrementVersion = (version) => {
+        const parts = version.split('.').map(Number);
+        parts[2] = (parts[2] || 0) + 1;
+        return parts.join('.');
     };
 
     const renderMyModules = async () => {

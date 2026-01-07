@@ -66,6 +66,15 @@ const API = (() => {
             const data = await response.json().catch(() => ({}));
             if (!response.ok) throw { status: response.status, message: data.message || 'Error', data };
             return data;
+        },
+        uploadPut: async (endpoint, formData) => {
+            const token = getToken();
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(`${BASE_URL}${endpoint}`, { method: 'PUT', headers, body: formData, credentials: 'include' });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw { status: response.status, message: data.message || 'Error', data };
+            return data;
         }
     };
 })();
