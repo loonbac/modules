@@ -3,7 +3,7 @@
  * Secure communication with backend
  */
 const API = (() => {
-    const BASE_URL = 'https://api.modules.loonbac-dev.moe';
+    const BASE_URL = 'https://modules-api.loonbac-dev.moe';
     let accessToken = null;
 
     // Token management
