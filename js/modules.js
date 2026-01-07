@@ -25,8 +25,9 @@ const Modules = (() => {
 
     const getById = async (slug) => {
         const data = await API.get(`/modules/${slug}`);
+        if (!data || !data.module) throw new Error('Datos del módulo inválidos');
         currentModule = data.module;
-        return data;
+        return data.module;
     };
 
     const create = (formData) => API.upload('/modules', formData);
@@ -98,13 +99,10 @@ const Modules = (() => {
         container.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Cargando...</p></div>';
 
         try {
-            const data = await getById(slug);
-            const m = currentModule;
+            if (!slug) throw new Error('Slug no proporcionado');
 
-            if (!m) {
-                throw new Error('Módulo no encontrado');
-            }
-
+            // Use the module returned by updated getById
+            const m = await getById(slug);
             const currentUser = Auth.getUser();
             const isAuthor = currentUser && m.author && currentUser.id === m.author.id;
 
@@ -151,7 +149,8 @@ const Modules = (() => {
                 document.getElementById('edit-module-btn')?.addEventListener('click', () => openEditModal(m));
             }
         } catch (error) {
-            container.innerHTML = '<div class="empty-state"><h3 class="empty-title">Módulo no encontrado</h3></div>';
+            console.error('Render details error:', error);
+            container.innerHTML = `<div class="empty-state"><h3 class="empty-title">Módulo no encontrado</h3><p class="text-muted" style="font-size:0.9rem;margin-top:0.5rem;">${error.message || ''}</p></div>`;
         }
     };
 
