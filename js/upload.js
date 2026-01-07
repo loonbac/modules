@@ -105,6 +105,13 @@ const Upload = (() => {
         // Form submit
         form?.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // Manual validation for file
+            if (!moduleFile) {
+                Toast.error('Debes seleccionar un archivo ZIP del módulo');
+                return;
+            }
+
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div> Subiendo...';
