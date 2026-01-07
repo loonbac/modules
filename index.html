@@ -436,13 +436,21 @@
 
                 <form class="upload-form" id="upload-form">
                     <div class="form-section">
-                        <h3 class="form-section-title">Información Básica</h3>
+                        <h3 class="form-section-title">Información del Módulo (module.json)</h3>
 
                         <div class="form-group">
-                            <label class="form-label" for="module-name">Nombre del Módulo *</label>
+                            <label class="form-label" for="module-name">Nombre Técnico (name) *</label>
                             <input type="text" class="form-input" id="module-name" name="name" required
-                                placeholder="Ej: Módulo de Inventario Avanzado">
-                            <span class="form-hint">Nombre descriptivo y único para tu módulo</span>
+                                placeholder="Ej: Inventario" pattern="^[A-Za-z][A-Za-z0-9]*$">
+                            <span class="form-hint">PascalCase sin espacios (ej: GestionClientes, Inventario)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="module-display-name">Nombre para Mostrar (display_name)
+                                *</label>
+                            <input type="text" class="form-input" id="module-display-name" name="display_name" required
+                                placeholder="Ej: Gestión de Inventario">
+                            <span class="form-hint">Nombre que verán los usuarios en la interfaz</span>
                         </div>
 
                         <div class="form-row">
@@ -468,10 +476,48 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="module-description">Descripción Corta *</label>
+                            <label class="form-label" for="module-description">Descripción *</label>
                             <textarea class="form-textarea" id="module-description" name="description" required rows="3"
                                 maxlength="500" placeholder="Describe brevemente qué hace tu módulo..."></textarea>
                             <span class="form-hint"><span id="desc-count">0</span>/500 caracteres</span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="module-icon">Icono</label>
+                                <select class="form-select" id="module-icon" name="icon">
+                                    <option value="package">📦 package (default)</option>
+                                    <option value="warehouse">🏭 warehouse</option>
+                                    <option value="shopping-cart">🛒 shopping-cart</option>
+                                    <option value="calculator">🧮 calculator</option>
+                                    <option value="users">👥 users</option>
+                                    <option value="file-text">📄 file-text</option>
+                                    <option value="link">🔗 link</option>
+                                    <option value="settings">⚙️ settings</option>
+                                    <option value="database">🗃️ database</option>
+                                    <option value="chart">📊 chart</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="module-gradient">Color del Gradiente</label>
+                                <select class="form-select" id="module-gradient" name="gradient">
+                                    <option value="linear-gradient(135deg, #667eea, #764ba2)">🟣 Púrpura (default)
+                                    </option>
+                                    <option value="linear-gradient(135deg, #f093fb, #f5576c)">🌸 Rosa</option>
+                                    <option value="linear-gradient(135deg, #4facfe, #00f2fe)">🔵 Azul</option>
+                                    <option value="linear-gradient(135deg, #43e97b, #38f9d7)">🟢 Verde</option>
+                                    <option value="linear-gradient(135deg, #fa709a, #fee140)">🟠 Naranja</option>
+                                    <option value="linear-gradient(135deg, #a8edea, #fed6e3)">🩵 Pastel</option>
+                                    <option value="linear-gradient(135deg, #30cfd0, #330867)">🌌 Galaxia</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="module-dependencies">Dependencias (opcional)</label>
+                            <input type="text" class="form-input" id="module-dependencies" name="dependencies"
+                                placeholder="Ej: Inventario, Clientes">
+                            <span class="form-hint">Nombres de módulos requeridos, separados por comas</span>
                         </div>
                     </div>
 
@@ -488,7 +534,8 @@
                                 </svg>
                                 <p class="upload-zone-text">Arrastra tu archivo aquí o <span
                                         class="upload-zone-link">selecciona</span></p>
-                                <p class="upload-zone-hint">Archivo .zip con el módulo (máx. 16MB)</p>
+                                <p class="upload-zone-hint">ZIP con carpetas: Controllers/, Models/, Services/, Routes/,
+                                    Migrations/ (máx. 16MB)</p>
                             </div>
                             <input type="file" class="upload-zone-input" id="module-file" name="file" accept=".zip"
                                 required>

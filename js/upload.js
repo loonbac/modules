@@ -112,9 +112,13 @@ const Upload = (() => {
             try {
                 const formData = new FormData();
                 formData.append('name', document.getElementById('module-name').value);
+                formData.append('display_name', document.getElementById('module-display-name').value);
                 formData.append('version', document.getElementById('module-version').value);
                 formData.append('category', document.getElementById('module-category').value);
                 formData.append('description', document.getElementById('module-description').value);
+                formData.append('icon', document.getElementById('module-icon').value);
+                formData.append('gradient', document.getElementById('module-gradient').value);
+                formData.append('dependencies', document.getElementById('module-dependencies').value);
                 formData.append('documentation', document.getElementById('module-docs').value);
 
                 if (moduleFile) formData.append('file', moduleFile);
