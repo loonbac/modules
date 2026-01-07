@@ -98,8 +98,13 @@ const Modules = (() => {
         container.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Cargando...</p></div>';
 
         try {
-            await getById(slug);
+            const data = await getById(slug);
             const m = currentModule;
+
+            if (!m) {
+                throw new Error('Módulo no encontrado');
+            }
+
             const currentUser = Auth.getUser();
             const isAuthor = currentUser && m.author && currentUser.id === m.author.id;
 
@@ -279,6 +284,22 @@ const Modules = (() => {
                             } catch { Toast.error('Error al eliminar'); }
                         }
                     });
+                });
+
+                // Edit button - navigate to module detail
+                container.querySelectorAll('.edit-module').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        App.navigateTo('module-detail', { slug: btn.dataset.slug });
+                    });
+                });
+
+                // Click on module item to view details
+                container.querySelectorAll('.my-module-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        App.navigateTo('module-detail', { slug: item.dataset.slug });
+                    });
+                    item.style.cursor = 'pointer';
                 });
             }
         } catch (error) {
