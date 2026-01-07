@@ -220,7 +220,10 @@ const Modules = (() => {
                 await update(module.slug, formData);
                 Toast.success('¡Módulo actualizado!');
                 closeModal();
-                renderModuleDetail(module.slug); // Refresh detail view
+                // Refresh the my modules list if we're on that page
+                if (document.getElementById('page-my-modules')?.classList.contains('active')) {
+                    renderMyModules();
+                }
             } catch (error) {
                 Toast.error(error.message || 'Error al actualizar');
                 saveBtn.disabled = false;
@@ -281,11 +284,16 @@ const Modules = (() => {
                     });
                 });
 
-                // Edit button - navigate to module detail
+                // Edit button - open modal directly
                 container.querySelectorAll('.edit-module').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
+                    btn.addEventListener('click', async (e) => {
                         e.stopPropagation();
-                        App.navigateTo('module-detail', { slug: btn.dataset.slug });
+                        try {
+                            const m = await getById(btn.dataset.slug);
+                            openEditModal(m);
+                        } catch (error) {
+                            Toast.error('Error al cargar módulo');
+                        }
                     });
                 });
 
