@@ -423,6 +423,124 @@
             </div>
         </section>
 
+        <!-- Edit Module Page (Auth Required) -->
+        <section class="page" id="page-edit-module">
+            <div class="container">
+                <a href="#" class="back-link" id="edit-back-link" data-page="my-modules">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Volver a Mis Módulos
+                </a>
+
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <span class="page-title-jp">編集</span>
+                        Editar Módulo
+                    </h1>
+                    <p class="page-subtitle">Actualiza la información de tu módulo</p>
+                </div>
+
+                <form class="upload-form" id="edit-module-form">
+                    <input type="hidden" id="edit-module-slug">
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Información del Módulo</h3>
+
+                        <div class="form-group">
+                            <label class="form-label" for="edit-module-name">Nombre Técnico</label>
+                            <input type="text" class="form-input" id="edit-module-name" readonly style="opacity: 0.6;">
+                            <span class="form-hint">El nombre no se puede cambiar</span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="edit-module-version">Nueva Versión *</label>
+                                <input type="text" class="form-input" id="edit-module-version" required
+                                    placeholder="1.0.1" pattern="^\d+\.\d+\.\d+$">
+                                <span class="form-hint" id="edit-version-hint">Incrementa la versión</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="edit-module-category">Categoría</label>
+                                <select class="form-select" id="edit-module-category">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="inventory">Inventario</option>
+                                    <option value="sales">Ventas</option>
+                                    <option value="accounting">Contabilidad</option>
+                                    <option value="hr">Recursos Humanos</option>
+                                    <option value="reports">Reportes</option>
+                                    <option value="integrations">Integraciones</option>
+                                    <option value="other">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="edit-module-description">Descripción</label>
+                            <textarea class="form-textarea" id="edit-module-description" rows="3" maxlength="500"
+                                placeholder="Describe brevemente qué hace tu módulo..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Actualizar Archivo (Opcional)</h3>
+
+                        <div class="upload-zone" id="edit-upload-zone">
+                            <div class="upload-zone-content">
+                                <svg class="upload-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <p class="upload-zone-text">Arrastra tu archivo aquí o <span
+                                        class="upload-zone-link">selecciona</span></p>
+                                <p class="upload-zone-hint">Solo si quieres actualizar el código del módulo (ZIP, máx.
+                                    16MB)</p>
+                            </div>
+                            <input type="file" class="upload-zone-input" id="edit-module-file" accept=".zip">
+                        </div>
+                        <div class="uploaded-file hidden" id="edit-uploaded-file">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            <span class="uploaded-file-name" id="edit-uploaded-file-name"></span>
+                            <button type="button" class="uploaded-file-remove" id="edit-remove-file">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Documentación</h3>
+
+                        <div class="form-group">
+                            <label class="form-label" for="edit-module-docs">Documentación (Markdown)</label>
+                            <textarea class="form-textarea code" id="edit-module-docs" rows="15"
+                                placeholder="# Changelog..."></textarea>
+                            <span class="form-hint">Usa Markdown para dar formato</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-ghost" id="edit-cancel-btn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-lg" id="edit-submit-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                <polyline points="7 3 7 8 15 8"></polyline>
+                            </svg>
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
         <!-- Upload Page (Auth Required) -->
         <section class="page" id="page-upload">
             <div class="container">
@@ -857,11 +975,11 @@ Explica cómo usar el módulo...
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="js/api.js?v=1.4"></script>
-    <script src="js/auth.js?v=1.4"></script>
-    <script src="js/modules.js?v=1.4"></script>
-    <script src="js/upload.js?v=1.4"></script>
-    <script src="js/app.js?v=1.4"></script>
+    <script src="js/api.js?v=1.6"></script>
+    <script src="js/auth.js?v=1.6"></script>
+    <script src="js/modules.js?v=1.6"></script>
+    <script src="js/upload.js?v=1.6"></script>
+    <script src="js/app.js?v=1.6"></script>
 </body>
 
 </html>

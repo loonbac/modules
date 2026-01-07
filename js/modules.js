@@ -112,13 +112,13 @@ const Modules = (() => {
                         <h1 class="module-detail-title">${m.name}</h1>
                         <p class="module-detail-author">por <a href="#">${m.author?.username || 'Anónimo'}</a></p>
                         ${isAuthor ? `
-                            <button class="btn btn-ghost" id="edit-module-btn">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <a href="#" class="section-link" id="edit-module-btn" style="display: inline-flex; margin-top: 0.75rem;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                                 Editar Módulo
-                            </button>
+                            </a>
                         ` : ''}
                     </div>
                     ${m.images?.length ? `
@@ -142,7 +142,7 @@ const Modules = (() => {
 
             // Add edit button listener if author
             if (isAuthor) {
-                document.getElementById('edit-module-btn')?.addEventListener('click', () => openEditModal(m));
+                document.getElementById('edit-module-btn')?.addEventListener('click', () => navigateToEditPage(m));
             }
         } catch (error) {
             console.error('Render details error:', error);
@@ -150,93 +150,79 @@ const Modules = (() => {
         }
     };
 
-    const openEditModal = (module) => {
-        // Create edit modal
-        const modal = document.createElement('div');
-        modal.className = 'modal open';
-        modal.id = 'edit-module-modal';
-        modal.innerHTML = `
-            <div class="modal-backdrop" id="edit-modal-backdrop"></div>
-            <div class="modal-container">
-                <div class="modal-content" style="max-width: 600px;">
-                    <button class="modal-close" id="close-edit-modal">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                    <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">Editar Módulo</h2>
-                <form id="edit-module-form">
-                    <div class="form-group">
-                        <label class="form-label">Nombre</label>
-                        <input type="text" class="form-input" id="edit-name" value="${module.name}" readonly style="opacity: 0.7;">
-                        <span class="form-hint">El nombre no se puede cambiar</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nueva Versión *</label>
-                        <input type="text" class="form-input" id="edit-version" value="${module.version}" required pattern="^\\d+\\.\\d+\\.\\d+$">
-                        <span class="form-hint">Incrementa la versión (ej: ${incrementVersion(module.version)})</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-textarea" id="edit-description" rows="3">${module.description || ''}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Documentación (Markdown)</label>
-                        <textarea class="form-textarea code" id="edit-documentation" rows="10">${module.documentation || ''}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nuevo archivo ZIP (opcional)</label>
-                        <input type="file" class="form-input" id="edit-file" accept=".zip" style="padding: 0.5rem;">
-                        <span class="form-hint">Solo si quieres actualizar el código del módulo</span>
-                    </div>
-                    <div class="form-actions" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                        <button type="button" class="btn btn-ghost" id="cancel-edit-btn">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="save-edit-btn">Guardar Cambios</button>
-                    </div>
-                </form>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+    const navigateToEditPage = (module) => {
+        window.editingModule = module;
+        App.navigateTo('edit-module', { slug: module.slug });
+    };
 
-        // Close modal handlers
-        const closeModal = () => modal.remove();
-        modal.querySelector('.modal-backdrop').addEventListener('click', closeModal);
-        modal.querySelector('#close-edit-modal').addEventListener('click', closeModal);
-        modal.querySelector('#cancel-edit-btn').addEventListener('click', closeModal);
+    const initEditPage = async (slug) => {
+        let module = window.editingModule;
+        if (!module || module.slug !== slug) {
+            try {
+                module = await getById(slug);
+            } catch (error) {
+                Toast.error('Error al cargar módulo');
+                App.navigateTo('my-modules');
+                return;
+            }
+        }
 
-        // Form submit
-        modal.querySelector('#edit-module-form').addEventListener('submit', async (e) => {
+        document.getElementById('edit-module-slug').value = module.slug;
+        document.getElementById('edit-module-name').value = module.name;
+        document.getElementById('edit-module-version').value = module.version;
+        document.getElementById('edit-version-hint').textContent = `Versión actual: ${module.version} → Sugerida: ${incrementVersion(module.version)}`;
+        document.getElementById('edit-module-category').value = module.category || '';
+        document.getElementById('edit-module-description').value = module.description || '';
+        document.getElementById('edit-module-docs').value = module.documentation || '';
+
+        const uploadZone = document.getElementById('edit-upload-zone');
+        const fileInput = document.getElementById('edit-module-file');
+        const uploadedFile = document.getElementById('edit-uploaded-file');
+        const uploadedFileName = document.getElementById('edit-uploaded-file-name');
+        const removeFileBtn = document.getElementById('edit-remove-file');
+
+        const showUploadedFile = (name) => {
+            uploadZone.classList.add('hidden');
+            uploadedFile.classList.remove('hidden');
+            uploadedFileName.textContent = name;
+        };
+
+        uploadZone.onclick = () => fileInput.click();
+        fileInput.onchange = () => { if (fileInput.files[0]) showUploadedFile(fileInput.files[0].name); };
+        removeFileBtn.onclick = () => {
+            fileInput.value = '';
+            uploadedFile.classList.add('hidden');
+            uploadZone.classList.remove('hidden');
+        };
+
+        document.getElementById('edit-cancel-btn').onclick = () => App.navigateTo('my-modules');
+        document.getElementById('edit-back-link').onclick = (e) => { e.preventDefault(); App.navigateTo('my-modules'); };
+
+        document.getElementById('edit-module-form').onsubmit = async (e) => {
             e.preventDefault();
-            const saveBtn = modal.querySelector('#save-edit-btn');
-            saveBtn.disabled = true;
-            saveBtn.textContent = 'Guardando...';
+            const submitBtn = document.getElementById('edit-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Guardando...</span>';
 
             try {
                 const formData = new FormData();
-                formData.append('version', modal.querySelector('#edit-version').value);
-                formData.append('description', modal.querySelector('#edit-description').value);
-                formData.append('documentation', modal.querySelector('#edit-documentation').value);
+                formData.append('version', document.getElementById('edit-module-version').value);
+                formData.append('description', document.getElementById('edit-module-description').value);
+                formData.append('documentation', document.getElementById('edit-module-docs').value);
+                formData.append('category', document.getElementById('edit-module-category').value);
 
-                const fileInput = modal.querySelector('#edit-file');
-                if (fileInput.files[0]) {
-                    formData.append('file', fileInput.files[0]);
-                }
+                if (fileInput.files[0]) formData.append('file', fileInput.files[0]);
 
                 await update(module.slug, formData);
                 Toast.success('¡Módulo actualizado!');
-                closeModal();
-                // Refresh the my modules list if we're on that page
-                if (document.getElementById('page-my-modules')?.classList.contains('active')) {
-                    renderMyModules();
-                }
+                window.editingModule = null;
+                App.navigateTo('my-modules');
             } catch (error) {
                 Toast.error(error.message || 'Error al actualizar');
-                saveBtn.disabled = false;
-                saveBtn.textContent = 'Guardar Cambios';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path></svg> Guardar Cambios`;
             }
-        });
+        };
     };
 
     const incrementVersion = (version) => {
@@ -297,7 +283,7 @@ const Modules = (() => {
                         e.stopPropagation();
                         try {
                             const m = await getById(btn.dataset.slug);
-                            openEditModal(m);
+                            navigateToEditPage(m);
                         } catch (error) {
                             Toast.error('Error al cargar módulo');
                         }
@@ -317,7 +303,7 @@ const Modules = (() => {
         }
     };
 
-    return { getAll, getById, create, update, remove, getMyModules, renderModulesList, renderModuleDetail, renderMyModules, setFilter: (f) => filter = f, setSearch: (s) => search = s, setPage: (p) => page = p, getPage: () => page };
+    return { getAll, getById, create, update, remove, getMyModules, renderModulesList, renderModuleDetail, renderMyModules, initEditPage, setFilter: (f) => filter = f, setSearch: (s) => search = s, setPage: (p) => page = p, getPage: () => page };
 })();
 
 window.Modules = Modules;

@@ -45,8 +45,8 @@ const App = (() => {
     let currentPage = 'home';
     let pageParams = {};
 
-    const pages = ['home', 'modules', 'module-detail', 'upload', 'my-modules', 'settings'];
-    const authPages = ['upload', 'my-modules', 'settings'];
+    const pages = ['home', 'modules', 'module-detail', 'edit-module', 'upload', 'my-modules', 'settings'];
+    const authPages = ['upload', 'my-modules', 'settings', 'edit-module'];
 
     const navigateTo = (page, params = {}) => {
         if (authPages.includes(page) && !Auth.isLoggedIn()) {
@@ -77,6 +77,9 @@ const App = (() => {
                 break;
             case 'module-detail':
                 if (params.slug) Modules.renderModuleDetail(params.slug);
+                break;
+            case 'edit-module':
+                if (params.slug) Modules.initEditPage(params.slug);
                 break;
             case 'my-modules':
                 Modules.renderMyModules();
