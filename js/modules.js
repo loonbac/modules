@@ -126,7 +126,7 @@ const Modules = (() => {
                             ${m.images.map(img => `<div class="module-detail-image"><img src="${img}" alt="Screenshot"></div>`).join('')}
                         </div>
                     ` : ''}
-                    <div class="module-detail-docs">${marked ? marked.parse(m.documentation || '') : m.documentation || ''}</div>
+                    <div class="module-detail-docs">${(typeof marked !== 'undefined' && marked.parse) ? marked.parse(m.documentation || '') : (m.documentation || '')}</div>
                 </div>
                 <aside class="module-detail-sidebar">
                     <div class="module-sidebar-card">
