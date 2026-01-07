@@ -137,10 +137,6 @@ const Modules = (() => {
                             <div class="module-sidebar-info-item"><span class="module-sidebar-info-label">Actualizado</span><span class="module-sidebar-info-value">${new Date(m.updated_at).toLocaleDateString('es')}</span></div>
                         </div>
                     </div>
-                    <a href="${API.BASE_URL || 'https://modules-api.loonbac-dev.moe'}/modules/${slug}/download" class="btn btn-primary btn-block" download>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Descargar
-                    </a>
                 </aside>
             `;
 
