@@ -592,8 +592,113 @@ Esta documentación se mostrará en la página del módulo."></textarea>
                             Registrar Módulo
                         </button>
                     </div>
-            </div>
-            </form>
+                </form>
+
+                <!-- Webhook Setup Section - Initially Hidden -->
+                <div class="form-section webhook-setup-section hidden" id="webhook-setup-section"
+                    style="margin-top: 2rem;">
+                    <div
+                        style="background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 12px; padding: 1.5rem;">
+                        <h3 class="form-section-title"
+                            style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-accent); margin-bottom: 1rem;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                style="width: 24px; height: 24px;">
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                                </path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            ¡Paso Importante! Configurar Webhook
+                        </h3>
+
+                        <p style="color: var(--color-text-muted); margin-bottom: 1.5rem;">
+                            Para que tu módulo <strong id="webhook-module-name"></strong> se actualice automáticamente
+                            cuando hagas push a GitHub,
+                            configura un webhook en tu repositorio con los siguientes datos:
+                        </p>
+
+                        <div style="display: grid; gap: 1rem;">
+                            <div class="form-group" style="margin: 0;">
+                                <label class="form-label">Payload URL</label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" class="form-input" id="webhook-url" readonly
+                                        style="font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;">
+                                    <button type="button" class="btn btn-ghost copy-btn" data-target="webhook-url"
+                                        style="padding: 0.75rem; flex-shrink: 0;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            style="width: 18px; height: 18px;">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin: 0;">
+                                <label class="form-label">Secret (guárdalo, no se mostrará de nuevo)</label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" class="form-input" id="webhook-secret" readonly
+                                        style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">
+                                    <button type="button" class="btn btn-ghost copy-btn" data-target="webhook-secret"
+                                        style="padding: 0.75rem; flex-shrink: 0;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            style="width: 18px; height: 18px;">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin: 0;">
+                                <label class="form-label">Content-type</label>
+                                <code
+                                    style="padding: 0.75rem; display: block; background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;">application/json</code>
+                            </div>
+                        </div>
+
+                        <div
+                            style="background: var(--color-bg-tertiary); border-radius: 8px; padding: 1rem; margin-top: 1.5rem;">
+                            <h5 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    style="width: 18px; height: 18px;">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                                Instrucciones
+                            </h5>
+                            <ol
+                                style="margin: 0; padding-left: 1.25rem; color: var(--color-text-muted); font-size: 0.875rem; line-height: 1.8;">
+                                <li>Ve a tu repositorio en GitHub</li>
+                                <li>Navega a <strong>Settings → Webhooks → Add webhook</strong></li>
+                                <li>Pega la <strong>Payload URL</strong> y el <strong>Secret</strong></li>
+                                <li>Selecciona Content-type: <strong>application/json</strong></li>
+                                <li>En "Which events?" selecciona <strong>Just the push event</strong></li>
+                                <li>Haz clic en <strong>Add webhook</strong></li>
+                            </ol>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                            <a href="#" class="btn btn-primary" data-page="my-modules">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    style="width: 18px; height: 18px;">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Entendido, ir a Mis Módulos
+                            </a>
+                            <button type="button" class="btn btn-ghost" id="upload-another-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    style="width: 18px; height: 18px;">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Subir otro módulo
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
