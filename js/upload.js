@@ -2,6 +2,8 @@
  * Korosoft Modules - Upload Module (GitHub-based)
  */
 const Upload = (() => {
+    let pollInterval = null;
+
     const init = () => {
         const form = document.getElementById('upload-form');
         const webhookSection = document.getElementById('webhook-setup-section');
@@ -36,7 +38,10 @@ const Upload = (() => {
                     form.style.display = 'none';
 
                     // Populate webhook info
-                    document.getElementById('webhook-module-name').textContent = response.module?.name || 'tu módulo';
+                    const moduleName = response.module?.name || 'tu módulo';
+                    const moduleSlug = response.module?.slug;
+
+                    document.getElementById('webhook-module-name').textContent = moduleName;
                     document.getElementById('webhook-url').value = response.webhook_setup.url;
                     document.getElementById('webhook-secret').value = response.webhook_setup.secret;
 
@@ -45,6 +50,11 @@ const Upload = (() => {
 
                     // Scroll to the section
                     webhookSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                    // Start polling for webhook verification
+                    if (moduleSlug) {
+                        startWebhookVerificationPolling(moduleSlug);
+                    }
                 } else {
                     form.reset();
                     App.navigateTo('my-modules');
@@ -59,9 +69,11 @@ const Upload = (() => {
 
         // Upload another button - reset form and hide webhook section
         uploadAnotherBtn?.addEventListener('click', () => {
+            stopPolling();
             form.reset();
             form.style.display = 'block';
             webhookSection.classList.add('hidden');
+            resetVerificationStatus();
             document.getElementById('github-url').focus();
         });
 
@@ -83,6 +95,79 @@ const Upload = (() => {
                 }
             });
         });
+    };
+
+    const startWebhookVerificationPolling = (slug) => {
+        const statusEl = document.getElementById('webhook-verification-status');
+        if (statusEl) {
+            statusEl.classList.remove('hidden');
+            statusEl.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-warning);">
+                    <div class="spinner" style="width: 18px; height: 18px; border-width: 2px;"></div>
+                    <span>Esperando verificación del webhook de GitHub...</span>
+                </div>
+            `;
+        }
+
+        let attempts = 0;
+        const maxAttempts = 60; // 60 * 2 seconds = 2 minutes max
+
+        pollInterval = setInterval(async () => {
+            attempts++;
+
+            try {
+                const response = await API.get(`/modules/${slug}/webhook-status`);
+
+                if (response.verified) {
+                    stopPolling();
+                    if (statusEl) {
+                        statusEl.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-success);">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                <span>¡Webhook verificado correctamente! GitHub puede enviar actualizaciones.</span>
+                            </div>
+                        `;
+                    }
+                    Toast.success('¡Webhook configurado correctamente!');
+                }
+            } catch (error) {
+                console.log('Polling error:', error);
+            }
+
+            if (attempts >= maxAttempts) {
+                stopPolling();
+                if (statusEl) {
+                    statusEl.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-text-muted);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span>Tiempo de espera agotado. Puedes configurar el webhook más tarde.</span>
+                        </div>
+                    `;
+                }
+            }
+        }, 2000); // Check every 2 seconds
+    };
+
+    const stopPolling = () => {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+    };
+
+    const resetVerificationStatus = () => {
+        const statusEl = document.getElementById('webhook-verification-status');
+        if (statusEl) {
+            statusEl.classList.add('hidden');
+            statusEl.innerHTML = '';
+        }
     };
 
     return { init };
